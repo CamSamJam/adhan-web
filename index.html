@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Adhan Web</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./src/style.css" />
+</head>
+<body>
+  <div class="page-wrap">
+    <header>
+      <div class="container">
+        <h1>Adhan Web</h1>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="container">
+        <h2>Horaires des prières</h2>
+        <p>Entrez votre ville pour connaître les horaires</p>
+        <form id="city-form" autocomplete="off">
+          <div class="input-wrap">
+            <input type="text" id="city" placeholder="Votre ville" required />
+            <div id="suggestions"></div>
+          </div>
+          <button type="submit">Valider</button>
+        </form>
+      </div>
+    </section>
+
+    <main class="container main-grid">
+      <div class="left"></div> <!-- espace vide / design aéré -->
+
+      <div class="right">
+        <section class="prayer-times">
+          <h3>Horaires</h3>
+          <div id="prayer-times">Les horaires apparaîtront ici</div>
+        </section>
+
+        <section class="next-prayer">
+          <h3>Prochaine prière</h3>
+          <div id="next-prayer">...</div>
+          <div id="countdown">00:00:00</div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <footer>
+    &copy; 2025 Adhan Web by Samy
+  </footer>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
