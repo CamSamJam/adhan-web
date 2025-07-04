@@ -1,6 +1,7 @@
 let currentTimings = {};
-let nextPrayerName = '';
-let nextPrayerTime = '';
+let timezone = "";
+let nextPrayerTime = null;
+let nextPrayerName = "";
 
 const cityInput = document.getElementById('city');
 const suggestionsBox = document.getElementById('suggestions');
@@ -26,11 +27,7 @@ cityInput.addEventListener('input', async () => {
     suggestionsBox.appendChild(div);
   });
 
-  if (data.length > 0) {
-    suggestionsBox.style.display = 'block';
-  } else {
-    suggestionsBox.style.display = 'none';
-  }
+  suggestionsBox.style.display = data.length > 0 ? 'block' : 'none';
 });
 
 document.getElementById('city-form').addEventListener('submit', async (e) => {
@@ -47,6 +44,7 @@ async function getPrayerTimes(city) {
     const response = await fetch(`https://api.aladhan.com/v1/timingsByAddress?address=${encodeURIComponent(city)}`);
     const data = await response.json();
     currentTimings = data.data.timings;
+    timezone = data.data.meta.timezone;
     displayTimings();
   } catch (e) {
     document.getElementById('prayer-times').innerText = "Erreur lors du chargement.";
@@ -65,14 +63,14 @@ function displayTimings() {
 }
 
 function updateNextPrayer() {
-  const now = new Date();
-  const today = now.toISOString().split('T')[0];
   const prayerOrder = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
-  let found = false;
+  const now = new Date(new Date().toLocaleString("en-US", { timeZone: timezone }));
 
+  let found = false;
   for (let name of prayerOrder) {
     const [hour, minute] = currentTimings[name].split(':').map(Number);
-    const prayerDate = new Date(`${today}T${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}:00`);
+    const prayerDate = new Date(now);
+    prayerDate.setHours(hour, minute, 0, 0);
     if (prayerDate > now) {
       nextPrayerName = name;
       nextPrayerTime = prayerDate;
@@ -82,22 +80,24 @@ function updateNextPrayer() {
   }
 
   if (!found) {
+    // prochaine prière : Fajr demain
     const [hour, minute] = currentTimings['Fajr'].split(':').map(Number);
     const prayerDate = new Date(now);
-    prayerDate.setDate(now.getDate() + 1);
+    prayerDate.setDate(prayerDate.getDate() + 1);
     prayerDate.setHours(hour, minute, 0, 0);
     nextPrayerName = 'Fajr';
     nextPrayerTime = prayerDate;
   }
 
-  document.getElementById('next-prayer').innerText = `Prochaine prière : ${nextPrayerName}`;
+  document.getElementById('next-prayer').innerText = nextPrayerName;
 }
 
 function updateCountdown() {
   if (!nextPrayerTime) return;
 
-  const now = new Date();
+  const now = new Date(new Date().toLocaleString("en-US", { timeZone: timezone }));
   const diffMs = nextPrayerTime - now;
+
   if (diffMs <= 0) {
     document.getElementById('countdown').innerText = "C'est l'heure !";
     return;
@@ -108,7 +108,7 @@ function updateCountdown() {
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
 
-  document.getElementById('countdown').innerText = 
+  document.getElementById('countdown').innerText =
     `${hours.toString().padStart(2, '0')}:` +
     `${minutes.toString().padStart(2, '0')}:` +
     `${seconds.toString().padStart(2, '0')}`;
