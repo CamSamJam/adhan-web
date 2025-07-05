@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://adhan-web-sooty.vercel.app/sitemap.xml
